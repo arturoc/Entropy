@@ -8,7 +8,8 @@ namespace ent
 {
 	enum SnapshotAttributes
 	{
-		DENSITY_ATTRIBUTE = 5
+		DENSITY_ATTRIBUTE = 5,
+		CELLSIZE_ATTRIBUTE = 6
 	};
 	
 	class SnapshotRamses
@@ -20,8 +21,11 @@ namespace ent
 		void setup(const std::string& folder, int frameIndex);
 		void clear();
 
-		void update(ofShader& shader);
-		void draw();
+		void updateCells(ofShader& shader);
+		void drawCells();
+
+		void updatePoints(ofShader& shader);
+		void drawPoints();
 
 		ofxRange3f& getCoordRange();
 		ofxRange1f& getSizeRange();
@@ -35,7 +39,8 @@ namespace ent
 
 		ofBufferObject m_bufferObject;
 		ofTexture m_bufferTexture;
-		ofVboMesh m_vboMesh;
+		ofVboMesh m_vboCells;
+		ofVboMesh m_vboPoints;
 
 		ofxRange3f m_coordRange;
 		ofxRange1f m_sizeRange;
