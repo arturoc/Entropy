@@ -5,6 +5,7 @@ namespace ent
     //--------------------------------------------------------------
     SequenceRamses::SequenceRamses()
 		: m_bRender(true)
+		, m_renderMode(RENDER_CELLS)
 		, m_densityMin(0.0f)
 		, m_densityMax(0.25f)
 		, m_frameRate(30.0f)
@@ -36,11 +37,18 @@ namespace ent
 		m_endIndex = endIndex;
 
         // Load the shaders.
-        m_renderShader.setupShaderFromFile(GL_VERTEX_SHADER, "shaders/render.vert");
-		m_renderShader.setupShaderFromFile(GL_FRAGMENT_SHADER, "shaders/render.frag");
-		m_renderShader.bindAttribute(DENSITY_ATTRIBUTE, "density");
-		m_renderShader.bindDefaults();
-		m_renderShader.linkProgram();
+        m_cellsShader.setupShaderFromFile(GL_VERTEX_SHADER, "shaders/cells.vert");
+		m_cellsShader.setupShaderFromFile(GL_FRAGMENT_SHADER, "shaders/render.frag");
+		m_cellsShader.bindAttribute(DENSITY_ATTRIBUTE, "density");
+		m_cellsShader.bindDefaults();
+		m_cellsShader.linkProgram();
+
+		m_pointsShader.setupShaderFromFile(GL_VERTEX_SHADER, "shaders/points.vert");
+		m_pointsShader.setupShaderFromFile(GL_FRAGMENT_SHADER, "shaders/render.frag");
+		m_pointsShader.bindAttribute(DENSITY_ATTRIBUTE, "density");
+		m_pointsShader.bindAttribute(CELLSIZE_ATTRIBUTE, "cellSize");
+		m_pointsShader.bindDefaults();
+		m_pointsShader.linkProgram();
 
 		m_bReady = true;
     }
@@ -79,14 +87,31 @@ namespace ent
             ofScale(scale / m_normalizeFactor, scale / m_normalizeFactor, scale / m_normalizeFactor);
             ofTranslate(m_originShift.x, m_originShift.y, m_originShift.z);
             {
-                m_renderShader.begin();
-				m_renderShader.setUniform1f("uDensityMin", m_densityMin * m_densityRange.getSpan());
-				m_renderShader.setUniform1f("uDensityMax", m_densityMax * m_densityRange.getSpan());
+				if (m_renderMode == RENDER_CELLS)
 				{
-					getSnapshot().update(m_renderShader);
-					getSnapshot().draw();
+					m_cellsShader.begin();
+					m_cellsShader.setUniform1f("uDensityMin", m_densityMin * m_densityRange.getSpan());
+					m_cellsShader.setUniform1f("uDensityMax", m_densityMax * m_densityRange.getSpan());
+					{
+						getSnapshot().updateCells(m_cellsShader);
+						getSnapshot().drawCells();
+					}
+					m_cellsShader.end();
 				}
-				m_renderShader.end();
+				else
+				{
+					ofEnablePointSprites();
+					m_pointsShader.begin();
+					m_pointsShader.setUniform1f("uDensityMin", m_densityMin * m_densityRange.getSpan());
+					m_pointsShader.setUniform1f("uDensityMax", m_densityMax * m_densityRange.getSpan());
+					m_pointsShader.setUniform1f("uScale", scale);
+					{
+						getSnapshot().updatePoints(m_pointsShader);
+						getSnapshot().drawPoints();
+					}
+					m_pointsShader.end();
+					ofDisablePointSprites();
+				}
             }
             ofPopMatrix();
         }

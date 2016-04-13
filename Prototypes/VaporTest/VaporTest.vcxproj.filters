@@ -427,11 +427,14 @@
     <None Include="bin\data\shaders\render.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="bin\data\shaders\render.vert">
-      <Filter>shaders</Filter>
-    </None>
     <None Include="..\..\..\addons\ofxSet\src\ofxRange.inl">
       <Filter>addons\ofxSet\src</Filter>
+    </None>
+    <None Include="bin\data\shaders\points.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="bin\data\shaders\cells.vert">
+      <Filter>shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

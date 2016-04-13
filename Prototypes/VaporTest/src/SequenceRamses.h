@@ -12,6 +12,12 @@ namespace ent
     class SequenceRamses
     {
     public:
+		enum RenderMode
+		{
+			RENDER_CELLS,
+			RENDER_POINTS
+		};
+
         SequenceRamses();
         ~SequenceRamses();
 
@@ -47,6 +53,8 @@ namespace ent
 
 		bool isReady() const;
 
+		RenderMode m_renderMode;
+
     protected:
 		// Data
 		std::vector<SnapshotRamses> m_snapshots;
@@ -69,7 +77,8 @@ namespace ent
         glm::vec3 m_originShift;
         float m_normalizeFactor;
 
-        ofShader m_renderShader;
+        ofShader m_cellsShader;
+		ofShader m_pointsShader;
 
         float m_densityMin;
         float m_densityMax;

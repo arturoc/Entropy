@@ -113,6 +113,10 @@ bool ofApp::imGui()
 			if (ImGui::CollapsingHeader("World", nullptr, true, true))
 			{
 				ImGui::SliderFloat("Scale", &m_scale, 1.0f, 2048.0f);
+
+				ImGui::RadioButton("Render Cells", (int *)&m_sequenceRamses.m_renderMode, 0);
+				ImGui::SameLine();
+				ImGui::RadioButton("Render Points", (int *)&m_sequenceRamses.m_renderMode, 1);
 			}
 
 			if (ImGui::CollapsingHeader("Playback", nullptr, true, true))
@@ -136,6 +140,8 @@ bool ofApp::imGui()
 						if (folderName.length())
 						{
 							m_exportPath = ofToDataPath("exports/" + folderName + "/");
+
+							m_sequenceRamses.m_renderMode = ent::SequenceRamses::RENDER_CELLS;
 
 							m_timeline.setCurrentFrame(0);
 							m_timeline.setFrameBased(true);

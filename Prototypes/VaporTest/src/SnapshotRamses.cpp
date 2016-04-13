@@ -53,13 +53,13 @@ namespace ent
 		m_coordRange.add(coordMid - spanOffset);
 		m_coordRange.add(coordMid + spanOffset);
 
-		// Set up the VBO.
-		m_vboMesh = ofMesh::box(1, 1, 1, 1, 1, 1);
-		m_vboMesh.setUsage(GL_STATIC_DRAW);
+		// Set up the VBO for cell rendering.
+		m_vboCells = ofMesh::box(1, 1, 1, 1, 1, 1);
+		m_vboCells.setUsage(GL_STATIC_DRAW);
 
 		// Upload per-instance data to the VBO.
-		m_vboMesh.getVbo().setAttributeData(DENSITY_ATTRIBUTE, density.data(), 1, density.size(), GL_STATIC_DRAW, 0);
-		m_vboMesh.getVbo().setAttributeDivisor(DENSITY_ATTRIBUTE, 1);
+		m_vboCells.getVbo().setAttributeData(DENSITY_ATTRIBUTE, density.data(), 1, density.size(), GL_STATIC_DRAW, 0);
+		m_vboCells.getVbo().setAttributeDivisor(DENSITY_ATTRIBUTE, 1);
 
 		// Upload per-instance transform data to the TBO.
 		std::vector<ofVec4f> transforms;
@@ -68,11 +68,22 @@ namespace ent
 			transforms[i] = ofVec4f(posX[i], posY[i], posZ[i], cellSize[i]);
 		}
 
+		cout << "cellSize range " << m_sizeRange.getMin() << " to " << m_sizeRange.getMax() << endl;
+
 		m_bufferObject.allocate();
 		m_bufferObject.bind(GL_TEXTURE_BUFFER);
 		m_bufferObject.setData(transforms, GL_STREAM_DRAW);
 
 		m_bufferTexture.allocateAsBufferTexture(m_bufferObject, GL_RGBA32F);
+
+		// Set up the VBO for point rendering.
+		m_vboPoints.setUsage(GL_STATIC_DRAW);
+		for (size_t i = 0; i < posX.size(); ++i) 
+		{
+			m_vboPoints.addVertex(ofVec3f(posX[i], posY[i], posZ[i]));
+		}
+		m_vboPoints.getVbo().setAttributeData(DENSITY_ATTRIBUTE, density.data(), 1, density.size(), GL_STATIC_DRAW, 0);
+		m_vboPoints.getVbo().setAttributeData(CELLSIZE_ATTRIBUTE, cellSize.data(), 1, cellSize.size(), GL_STATIC_DRAW, 0);
 
 		m_bLoaded = true;
 	}
@@ -82,6 +93,9 @@ namespace ent
 	{
 		m_bufferTexture.clear();
 		m_bufferObject.allocate();
+
+		m_vboCells.clear();
+		m_vboPoints.clear();
 
 		m_coordRange.clear();
 		m_sizeRange.clear();
@@ -114,15 +128,27 @@ namespace ent
 	}
 
 	//--------------------------------------------------------------
-	void SnapshotRamses::update(ofShader& shader)
+	void SnapshotRamses::updateCells(ofShader& shader)
 	{
 		shader.setUniformTexture("uTransform", m_bufferTexture, 0);
 	}
 
 	//--------------------------------------------------------------
-	void SnapshotRamses::draw()
+	void SnapshotRamses::drawCells()
 	{
-		m_vboMesh.drawInstanced(OF_MESH_FILL, m_numCells);
+		m_vboCells.drawInstanced(OF_MESH_FILL, m_numCells);
+	}
+
+	//--------------------------------------------------------------
+	void SnapshotRamses::updatePoints(ofShader& shader)
+	{
+		//shader.setUniformTexture("uTransform", m_bufferTexture, 0);
+	}
+
+	//--------------------------------------------------------------
+	void SnapshotRamses::drawPoints()
+	{
+		m_vboPoints.draw(OF_MESH_POINTS);
 	}
 
 	//--------------------------------------------------------------

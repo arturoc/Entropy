@@ -13,6 +13,7 @@ void main()
 {
     // Get the transform from the sampler.
     vec4 transform = texelFetch(uTransform, gl_InstanceID);
+	transform.w = 1.0;
     mat4 transformMatrix = mat4(transform.w, 0.0,         0.0,         0.0,
                                 0.0,         transform.w, 0.0,         0.0,
                                 0.0,         0.0,         transform.w, 0.0,
